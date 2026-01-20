@@ -1,0 +1,11 @@
+*.class
+*.cache
+target/
+.bloop/
+.bsp/
+.metals/
+.idea/
+.scala-build/
+
+github_users.db
+metals.sbt
