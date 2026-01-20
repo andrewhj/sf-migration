@@ -26,7 +26,7 @@ lazy val `integration-sourceforge` = (project in file("integration-sourceforge")
   .settings(
     libraryDependencies ++= commonDeps
   )
-  .dependsOn(`domain-sourceforge`)
+  .dependsOn(`common-config`, `domain-sourceforge`)
 
 lazy val `integration-github` = (project in file("integration-github"))
   .settings(

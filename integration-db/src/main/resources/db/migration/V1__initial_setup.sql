@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS assignee
+(
+    id INT NOT NULL PRIMARY KEY,
+    login VARCHAR(25)
+);
