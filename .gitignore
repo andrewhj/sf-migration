@@ -1,0 +1,9 @@
+*.class
+*.cache
+target/
+.bloop/
+.bsp/
+.metals/
+.idea/
+
+github_users.db
