@@ -28,10 +28,15 @@ lazy val `integration-sourceforge` = (project in file("integration-sourceforge")
   )
   .dependsOn(`common-config`, `domain-sourceforge`)
 
+lazy val `domain-github` = (project in file("domain-github"))
+  .settings(
+    libraryDependencies ++= commonDeps
+  )
 lazy val `integration-github` = (project in file("integration-github"))
   .settings(
     libraryDependencies ++= commonDeps
   )
+  .dependsOn(`common-config`, `domain-github`)
 
 lazy val `integration-db` = (project in file("integration-db"))
   .settings(
@@ -49,20 +54,22 @@ lazy val app = (project in file("app"))
   )
   .dependsOn(
     `common-config`,
+    `domain-sourceforge`,
+    `domain-github`,
     `integration-github`,
     `integration-sourceforge`,
     `integration-db`,
     reconciliation
   )
-  // .aggregate(
-  //   `common-domain`,
-  //   `common-config`,
-  //   `domain-sourceforge`,
-  //   `integration-github`,
-  //   `integration-sourceforge`,
-  //   `integration-db`,
-  //   reconciliation
-  // )
+  .aggregate(
+//    `common-domain`,
+    `common-config`,
+    `domain-sourceforge`,
+    `integration-github`,
+    `integration-sourceforge`,
+    `integration-db`,
+    reconciliation
+  )
 
 val zioVersion        = "2.1.24"
 val zioHttpVersion    = "3.7.4"
@@ -97,13 +104,16 @@ val commonDeps = Seq(
 //   "io.github.gaelrenoux" %% "tranzactio-doobie" % tranzactIOVersion,
 //  "com.typesafe.slick"   %% "slick-hikaricp"   % "3.6.1",
 
-  "io.github.gaelrenoux" %% "tranzactio-anorm"  % tranzactIOVersion,
-  "org.flywaydb"          % "flyway-core"       % "11.20.2",
-  "org.xerial"            % "sqlite-jdbc"       % "3.51.1.0",
-  "dev.zio"              %% "zio-test"          % zioVersion % "test",
-  "dev.zio"              %% "zio-test-junit"    % zioVersion % "test",
-  "dev.zio"              %% "zio-test-sbt"      % zioVersion % "test",
-  "dev.zio"              %% "zio-test-magnolia" % zioVersion % "test"
+  // persistence
+  "io.github.gaelrenoux" %% "tranzactio-anorm" % tranzactIOVersion,
+  "org.flywaydb"          % "flyway-core"      % "11.20.2",
+  "org.xerial"            % "sqlite-jdbc"      % "3.51.1.0",
+
+  // Test deps
+  "dev.zio" %% "zio-test"          % zioVersion % "test",
+  "dev.zio" %% "zio-test-junit"    % zioVersion % "test",
+  "dev.zio" %% "zio-test-sbt"      % zioVersion % "test",
+  "dev.zio" %% "zio-test-magnolia" % zioVersion % "test"
 )
 
 // If needing graphql api access

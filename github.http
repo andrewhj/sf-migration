@@ -1,0 +1,5 @@
+GET https://api.github.com/repos/{{owner}}/{{project}}/assignees
+
+###
+GET https://api.github.com/repos/{{owner}}/{{project}}/issues
+Accept: "application/vnd.github+json"
