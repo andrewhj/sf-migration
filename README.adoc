@@ -1,3 +1,85 @@
-Sourceforge Migration tool
+= Sourceforge Migration Tool
+
+This project provides tools for migrating issues and metadata from Sourceforge to GitHub. It is built using Scala 3 and the ZIO ecosystem.
+
+== Modules
+
+The project is organized into several modules:
+
+* `domain-sourceforge`: Domain models for Sourceforge entities.
+* `domain-github`: Domain models for GitHub entities.
+* `integration-sourceforge`: Client for fetching tickets and details from Sourceforge.
+* `integration-github`: Client for interacting with the GitHub REST API (fetching issues, creating issues, etc.).
+* `integration-db`: Persistence layer using SQLite and Flyway for managing migration state (e.g., mapping SF users to GitHub users).
+* `common-config`: Shared configuration logic using ZIO Config.
+* `reconciliation-service`: (Planned/In-Progress) Service for reconciling data between the two platforms.
+
+== Prerequisites
+
+* Scala 3.3.5
+* sbt 1.x
+* SQLite (for local persistence)
+
+== Configuration
+
+The application is configured using HOCON (via ZIO Config). A sample configuration can be found in `integration-github/src/main/resources/application.conf`.
+
+Key configuration sections:
+
+[source,hocon]
+----
+migration {
+  sourceforge {
+    // Sourceforge specific settings
+  }
+  github {
+    token = "YOUR_GITHUB_PAT"
+    project {
+      owner = "target-owner"
+      project = "target-repo"
+    }
+  }
+  db {
+    dataSource {
+      url = "jdbc:sqlite:/path/to/your/database.db"
+    }
+  }
+}
+----
+
+You can also use environment variables to override settings, e.g., `DATABASE_JDBC_URL`.
+
+== Getting Started
+
+=== Build the project
+
+[source,bash]
+----
+sbt compile
+----
+
+=== Run Migrations (DB Setup)
+
+Before running the migration tool, initialize the SQLite database:
+
+[source,bash]
+----
+sbt "integration-db / runMain net.andrewhj.migration.integration.db.flyway.app.RunMigrations"
+----
+
+=== Running Tests
+
+[source,bash]
+----
+sbt test
+----
+
+== Implementation Details
+
+* **ZIO 2**: Used for effect management, dependency injection (ZLayer), and configuration.
+* **ZIO HTTP**: Used for making REST calls to Sourceforge and GitHub.
+* **ZIO Schema / JSON**: Used for serialization and deserialization.
+* **TranzactIO / Anorm**: Used for database access.
+* **Flyway**: Used for database schema migrations.
 
 
