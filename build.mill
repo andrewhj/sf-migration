@@ -1,0 +1,101 @@
+package build
+import mill.*
+import mill.scalalib.*
+
+object Versions {
+  val zioVersion        = "2.1.24"
+  val zioHttpVersion    = "3.7.4"
+  val zioJsonVersion    = "0.8.0"   // (currently unused, kept to mirror build.sbt)
+  val zioConfigVersion  = "4.0.6"
+  val zioLoggingVersion = "2.5.3"
+  val zioSchemaVersion  = "1.7.6"
+  val zioQueryVersion   = "0.7.7"
+  val sttpVersion       = "3.11.0"  // (currently unused, kept to mirror build.sbt)
+  val calibanVersion    = "2.9.1"   // (currently unused, kept to mirror build.sbt)
+  val quillVersion      = "4.8.6"   // (currently unused, kept to mirror build.sbt)
+  val tranzactIOVersion = "5.6.0"
+  val flywayVersion     = "11.20.2"
+  val sqliteVersion     = "3.51.1.0"
+}
+
+trait CommonScalaModule extends ScalaModule {
+
+  def scalaVersion = "3.3.5"
+
+  def scalacOptions = Seq(
+    "-unchecked",
+    "-deprecation",
+    "-feature"
+  )
+
+  protected def commonIvyDeps: Seq[Dep] = Seq(
+    ivy"dev.zio::zio:${Versions.zioVersion}",
+    ivy"dev.zio::zio-logging:${Versions.zioLoggingVersion}",
+    ivy"dev.zio::zio-logging-slf4j:${Versions.zioLoggingVersion}",
+    ivy"dev.zio::zio-schema:${Versions.zioSchemaVersion}",
+    ivy"dev.zio::zio-schema-json:${Versions.zioSchemaVersion}",
+    ivy"dev.zio::zio-http:${Versions.zioHttpVersion}",
+    ivy"dev.zio::zio-query:${Versions.zioQueryVersion}",
+    // ivy"dev.zio::zio-json:${Versions.zioJsonVersion}",
+
+    ivy"dev.zio::zio-config:${Versions.zioConfigVersion}",
+    ivy"dev.zio::zio-config-magnolia:${Versions.zioConfigVersion}",
+    ivy"dev.zio::zio-config-typesafe:${Versions.zioConfigVersion}",
+
+  )
+
+  protected def persistenceDeps = Seq(
+    // persistence
+    ivy"io.github.gaelrenoux::tranzactio-anorm:${Versions.tranzactIOVersion}",
+    ivy"org.flywaydb:flyway-core:${Versions.flywayVersion}",
+    ivy"org.xerial:sqlite-jdbc:${Versions.sqliteVersion}"
+  )
+
+  protected def testIvyDeps: Seq[Dep] = Seq(
+    ivy"dev.zio::zio-test:${Versions.zioVersion}",
+    ivy"dev.zio::zio-test-junit:${Versions.zioVersion}",
+    ivy"dev.zio::zio-test-sbt:${Versions.zioVersion}",
+    ivy"dev.zio::zio-test-magnolia:${Versions.zioVersion}"
+  )
+
+  def ivyDeps: Seq[Dep] = commonIvyDeps
+
+  object test extends ScalaTests {
+    def ivyDeps: Seq[Dep] = testIvyDeps
+    def testFrameworks: Seq[String] = Seq("zio.test.sbt.ZTestFramework")
+  }
+}
+
+object `common-config` extends CommonScalaModule
+
+object `domain-sourceforge` extends CommonScalaModule
+
+object `integration-sourceforge` extends CommonScalaModule {
+  def moduleDeps = Seq(`common-config`, `domain-sourceforge`)
+}
+
+object `domain-github` extends CommonScalaModule
+
+object `integration-github` extends CommonScalaModule {
+  def moduleDeps = Seq(`common-config`, `domain-github`)
+}
+
+object `integration-db` extends CommonScalaModule {
+  def moduleDeps = Seq(`common-config`, `domain-sourceforge`)
+}
+
+object reconciliation extends CommonScalaModule {
+  def moduleDeps = Seq(`integration-github`, `integration-sourceforge`)
+}
+
+object app extends CommonScalaModule {
+  def moduleDeps = Seq(
+    `common-config`,
+    `domain-sourceforge`,
+    `domain-github`,
+    `integration-github`,
+    `integration-sourceforge`,
+    `integration-db`,
+    reconciliation
+  )
+}
